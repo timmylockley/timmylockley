@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Popup Machine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #222;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+        input, button, select {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        .container {
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        #instructions {
+            display: none;
+            text-align: left;
+            max-width: 800px;
+            margin: auto;
+        }
+        h2 {
+            color: yellow;
+        }
+        #harmless {
+            color: red;
+        }
+        #dropZone {
+            border: 2px dashed #888;
+            padding: 20px;
+            margin: 10px;
+            color: #aaa;
+        }
+        #dropZone.dragover {
+            border-color: lime;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="setupUI">
+        <h1>Popup Machine</h1> 
+        <h2 id="harmless">This is Harmless</h2>
+        <div class="container">
+            <p>Enter the desired message or image URL, choose how many times to show it, then click start.</p>
+            <input type="text" id="message" placeholder="Enter text message">
+            <br>
+            <input type="text" id="imageURL" placeholder="Enter image URL (optional)">
+            <br>
+            <input type="file" id="mediaFile" accept="audio/mp3,video/mp4">
+            <br>
+            <div id="dropZone">Drag & Drop MP3 or MP4 file here</div>
+            <select id="mediaType">
+                <option value="">None</option>
+                <option value="video">Video (MP4)</option>
+                <option value="audio">Audio (MP3)</option>
+            </select>
+            <br>
+            <select id="mediaLoop">
+                <option value="loop">Loop</option>
+                <option value="once">Play Once</option>
+            </select>
+            <br>
+            <select id="popupCount">
+                <option value="infinite">Infinite</option>
+                <option value="10">10</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+            <br>
+            <button onclick="startPrank()">Start</button>
+        </div>
+    </div>
+
+    <div id="instructions">
+        <h1>Enable Popups to Continue</h1>
+        <p>To run this, you need to allow popups for this site.</p>
+        <p><strong>Once popups are allowed, click anywhere on this page to continue.</strong></p>
+    </div>
+
+    <script>
+        let message = "";
+        let imageURL = "";
+        let count = 0;
+        let mediaBlobURL = "";
+
+        function bypassPopupBlocker() {
+            for (let i = 0; i < 10; i++) {
+                let newWindow = window.open("about:blank", "_blank");
+                if (newWindow) newWindow.close();
+            }
+        }
+
+        function showPopup(content) {
+            let screenWidth = window.screen.width;
+            let screenHeight = window.screen.height;
+            let newWindow = window.open("", "_blank", `width=${screenWidth},height=${screenHeight},top=0,left=0`);
+            if (newWindow) {
+                newWindow.document.write(content);
+                newWindow.document.close();
+            }
+        }
+
+        function startPrank() {
+            message = document.getElementById("message").value || "Ha Ha You Are Hacked!";
+            imageURL = document.getElementById("imageURL").value;
+            let mediaType = document.getElementById("mediaType").value;
+            let mediaLoop = document.getElementById("mediaLoop").value;
+            let countValue = document.getElementById("popupCount").value;
+
+            count = (countValue === "infinite") ? Infinity : parseInt(countValue);
+
+            document.getElementById("setupUI").style.display = "none";
+            document.getElementById("instructions").style.display = "block";
+
+            bypassPopupBlocker();
+
+            document.body.addEventListener("click", () => {
+                let popupContent = `<html><body style='background:black;margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;'>`;
+
+                if (imageURL) {
+                    popupContent += `<img src="${imageURL}" style="max-width:100%;max-height:50%;">`;
+                } else {
+                    popupContent += `<h1 style='color:red;font-size:30px;'>${message}</h1>`;
+                }
+
+                if (mediaBlobURL && mediaType) {
+                    if (mediaType === "video") {
+                        popupContent += `<video src="${mediaBlobURL}" ${mediaLoop === "loop" ? "loop" : ""} autoplay style="max-width:100%;max-height:50%;"></video>`;
+                    } else if (mediaType === "audio") {
+                        popupContent += `<audio src="${mediaBlobURL}" ${mediaLoop === "loop" ? "loop" : ""} autoplay></audio>`;
+                    }
+                }
+
+                popupContent += `</body></html>`;
+
+                let i = 0;
+                let spamInterval = setInterval(() => {
+                    if (i >= count) {
+                        clearInterval(spamInterval);
+                        return;
+                    }
+                    showPopup(popupContent);
+                    i++;
+                }, 200);
+            }, { once: true });
+        }
+
+        // Handle file upload
+        document.getElementById("mediaFile").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                mediaBlobURL = URL.createObjectURL(file);
+            }
+        });
+
+        // Handle drag and drop
+        const dropZone = document.getElementById("dropZone");
+
+        dropZone.addEventListener("dragover", function(event) {
+            event.preventDefault();
+            dropZone.classList.add("dragover");
+        });
+
+        dropZone.addEventListener("dragleave", function() {
+            dropZone.classList.remove("dragover");
+        });
+
+        dropZone.addEventListener("drop", function(event) {
+            event.preventDefault();
+            dropZone.classList.remove("dragover");
+            const file = event.dataTransfer.files[0];
+            if (file && (file.type === "audio/mp3" || file.type === "video/mp4")) {
+                mediaBlobURL = URL.createObjectURL(file);
+                document.getElementById("mediaType").value = file.type.startsWith("video") ? "video" : "audio";
+            }
+        });
+    </script>
+</body>
+</html>

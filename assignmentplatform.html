@@ -1,0 +1,853 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="utf-8" />
+
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+<title>Assignment Platform — Neon Glass</title>
+
+<link rel="icon" href="data:,">
+
+<style>
+
+  /* ---------- Neon glass theme ---------- */
+
+  :root{
+
+    --bg:#071026;
+
+    --panel: rgba(255,255,255,0.04);
+
+    --glass: rgba(255,255,255,0.06);
+
+    --muted: #a7c0d9;
+
+    --accent1: #7CFFEA; /* aqua */
+
+    --accent2: #8B6CFF; /* purple */
+
+    --accent3: #4AE1FF; /* bright cyan */
+
+    --danger: #ff6b6b;
+
+    --radius:16px;
+
+  }
+
+  *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;}
+
+  html,body{height:100%;margin:0;background:
+
+    radial-gradient(1200px 600px at 5% 10%, rgba(139,108,255,0.08), transparent 6%),
+
+    radial-gradient(1000px 600px at 95% 90%, rgba(76,255,218,0.06), transparent 8%),
+
+    var(--bg); color:#e6f2ff; -webkit-font-smoothing:antialiased;}
+
+  .app{max-width:1300px;margin:28px auto;padding:18px;border-radius:20px; position:relative;
+
+       background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));
+
+       box-shadow: 0 10px 40px rgba(2,6,23,0.6);}
+
+  header{display:flex;align-items:center;gap:14px}
+
+  .logo{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+
+        background:linear-gradient(135deg,var(--accent1),var(--accent2));
+
+        color:#022127;font-weight:800;font-size:18px;box-shadow:0 6px 30px rgba(124,255,234,0.07)}
+
+  h1{margin:0;font-size:20px}
+
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+
+
+
+  .layout{display:grid;grid-template-columns:420px 1fr 420px;gap:18px;margin-top:14px}
+
+  @media (max-width:1200px){ .layout{grid-template-columns:340px 1fr; } .aiPanel{display:none} }
+
+  @media (max-width:820px){ .layout{grid-template-columns:1fr; } }
+
+
+
+  /* panels */
+
+  .panel{padding:14px;border-radius:var(--radius);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));border:1px solid rgba(255,255,255,0.02)}
+
+  .panel.glass{backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px)}
+
+  .muted{color:var(--muted);font-size:13px}
+
+  textarea{width:100%;height:220px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit;resize:vertical;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace}
+
+  .controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+  .btn{padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:700;color:#012; background:linear-gradient(90deg,var(--accent1),var(--accent2)); box-shadow:0 8px 30px rgba(124,255,234,0.06)}
+
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.03)}
+
+  .btn.warn{background:linear-gradient(90deg,#ff8a8a,#ff6b6b); color:white}
+
+
+
+  /* main viewer */
+
+  .viewer{min-height:480px;padding:18px;border-radius:12px;display:flex;align-items:center;justify-content:center;position:relative}
+
+  .welcome{max-width:720px;text-align:center; transition: opacity 0.3s, transform 0.3s;} /* Added transition */
+
+  .welcome.hidden{opacity:0; transform: scale(0.95); pointer-events: none;} /* New class to hide welcome message */
+
+  .welcome h2{margin:0 0 8px 0}
+
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:14px;padding:22px;width:100%;max-width:780px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.02)}
+
+  .question{font-size:22px;margin-bottom:14px}
+
+  .options{display:flex;flex-direction:column;gap:10px}
+
+  .option{padding:12px;border-radius:10px;background:rgba(255,255,255,0.02);cursor:pointer;border:1px solid rgba(255,255,255,0.02)}
+
+  .option:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,0.3)}
+
+  .option.correct{outline: 3px solid rgba(124,255,234,0.12);background:linear-gradient(90deg, rgba(124,255,234,0.03), transparent)}
+
+  .option.wrong{outline: 3px solid rgba(255,107,107,0.09);background:linear-gradient(90deg, rgba(255,107,107,0.02), transparent)}
+
+  input.textAnswer{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit;font-size:16px}
+
+
+
+  /* Flashcard Styles for Flipping */
+
+  .flash-container {
+
+    perspective: 1000px;
+
+    width: 80%;
+
+    max-width: 720px;
+
+    height: 160px; /* fixed height for card container */
+
+    position: relative;
+
+    margin: 0 auto;
+
+  }
+
+  .flash-card {
+
+    width: 100%;
+
+    height: 100%;
+
+    position: absolute;
+
+    transform-style: preserve-3d;
+
+    transition: transform 0.6s;
+
+    border-radius: 14px;
+
+    cursor: pointer;
+
+  }
+
+  .flash-card.flipped {
+
+    transform: rotateY(180deg);
+
+  }
+
+  .flashFace, .flashBack {
+
+    position: absolute;
+
+    width: 100%;
+
+    height: 100%;
+
+    backface-visibility: hidden;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 22px;
+
+    padding: 20px;
+
+    border-radius: 14px;
+
+    border: 1px solid rgba(255,255,255,0.02);
+
+  }
+
+  .flashFace {
+
+    background: linear-gradient(135deg, rgba(124,255,234,0.03), rgba(139,108,255,0.02));
+
+    z-index: 2;
+
+    transform: rotateY(0deg);
+
+  }
+
+  .flashBack {
+
+    background: linear-gradient(135deg, rgba(139,108,255,0.03), rgba(124,255,234,0.02));
+
+    color: var(--muted);
+
+    font-size: 18px;
+
+    transform: rotateY(180deg);
+
+    flex-direction: column;
+
+  }
+
+  .flash-controls{
+
+    display:flex;gap:8px;margin-top:14px;
+
+  }
+
+  .flash-content{
+
+    text-align: center;
+
+    max-width: 100%;
+
+  }
+
+
+
+
+
+  /* floating controls (top-left when in play) */
+
+  .floatControls{position:fixed;left:18px;top:18px;display:flex;gap:10px;z-index:120}
+
+  .floatBtn{padding:10px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700;background:linear-gradient(90deg, rgba(0,0,0,0.22), rgba(255,255,255,0.02)); color: #dff; box-shadow:0 10px 30px rgba(0,0,0,0.6);backdrop-filter: blur(6px)}
+
+  .floatBtn.exit{background:linear-gradient(90deg,#ff9c8a,#ff6b6b);color:#111}
+
+  .floatBtn.back{background:linear-gradient(90deg,#8bd6ff,#7c88ff);color:#021}
+
+
+
+  /* hidden class for editors */
+
+  .hideLeft{transform: translateX(-36%);opacity:0;pointer-events:none}
+
+  .hideRight{transform: translateX(36%);opacity:0;pointer-events:none}
+
+  .fullMiddle{grid-column: 1 / -1}
+
+  /* subtle glass border */
+
+  .panelTitle{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+
+  .small{font-size:13px;color:var(--muted)}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+  <header>
+
+    <div class="logo">AS</div>
+
+    <div>
+
+      <h1>Assignment Platform</h1>
+
+      <p class="lead small">Neon glass theme — create quizzes & flashcards. AI assistant on the right.</p>
+
+    </div>
+
+  </header>
+
+
+
+  <div class="layout" id="layoutGrid">
+
+        <div class="panel glass" id="leftPanel">
+
+      <div class="panelTitle"><strong>Quiz Editor</strong><div style="margin-left:auto" class="small">Two modes: MCQ or Typed answer</div></div>
+
+      <div class="small muted">Examples are prefilled — delete them before writing your own.</div>
+
+      <textarea id="quizInput">
+
+// Example Quiz (delete these first)
+
+// MCQ format: number. question = A: option A; B: option B; C: option C; D: option D | A
+
+// Typed format: number. question = answer
+
+
+
+1. What is energy? = A: The capacity to do work; B: A potato; C: Ice; D: Nothing | A
+
+2. Capital of France? = Paris
+
+      </textarea>
+
+
+
+      <div style="height:14px"></div>
+
+      <div class="panelTitle"><strong>Flashcard Editor</strong><div style="margin-left:auto" class="small">front = back</div></div>
+
+      <textarea id="flashInput">
+
+// Example Flashcards (delete these first)
+
+// Flashcard format: number. front = back
+
+
+
+1. Energy = The capacity to do work
+
+2. Atom = Smallest unit of matter
+
+      </textarea>
+
+
+
+      <div class="controls">
+
+        <button class="btn" id="playQuizBtn">Play Quiz</button>
+
+        <button class="btn ghost" id="playFlashBtn">Play Flashcards</button>
+
+        <button class="btn ghost" id="previewBtn">Preview Parsed</button>
+
+        <button class="btn ghost" id="clearBtn">Clear Examples</button>
+
+      </div>
+
+
+
+      <div style="margin-top:12px" class="small muted">
+
+        Tip: MCQ correct letter goes after a vertical bar <code>| A</code>. Short-answer is simply after the equals sign.
+
+      </div>
+
+    </div>
+
+
+
+        <div class="panel glass viewer" id="middlePanel">
+
+            <div id="welcome" class="welcome">
+
+        <div class="card">
+
+          <h2 style="margin-top:0">Ready to study</h2>
+
+          <p class="muted">Use the editors on the left to paste numbered data. Click <strong>Play Quiz</strong> or <strong>Play Flashcards</strong> to begin — the editors and AI will slide away and the activity becomes full-screen. Floating Back / Exit buttons appear in the top-left while playing.</p>
+
+          <div style="margin-top:12px;display:flex;gap:8px;justify-content:center">
+
+            <button class="btn" id="demoQuiz">Demo Quiz</button>
+
+            <button class="btn ghost" id="demoFlash">Demo Flashcards</button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div id="activityArea" style="width:100%;"></div>
+
+    </div>
+
+
+
+        <div class="panel glass aiPanel" id="rightPanel" aria-hidden="false">
+
+      <div class="panelTitle"><strong>AI Assistant</strong><div style="margin-left:auto" class="small">JotForm agent loaded below</div></div>
+
+      <div id="aiRoot" style="height:80vh;overflow:auto;border-radius:10px;padding:6px;">
+
+                <script src="https://cdn.jotfor.ms/agent/embedjs/019ae34d2911788386080c2dc924ce912839/embed.js"></script>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<div class="floatControls" id="floatControls" style="display:none">
+
+  <button class="floatBtn back" id="backBtn">← Back</button>
+
+  <button class="floatBtn exit" id="exitBtn">✕ Exit</button>
+
+</div>
+
+
+
+<script>
+
+/* -------------------- Behavior / Parsing -------------------- */
+
+const left = document.getElementById('leftPanel');
+
+const right = document.getElementById('rightPanel');
+
+const middle = document.getElementById('middlePanel');
+
+const activityArea = document.getElementById('activityArea');
+
+const floatControls = document.getElementById('floatControls');
+
+const backBtn = document.getElementById('backBtn');
+
+const exitBtn = document.getElementById('exitBtn');
+
+const welcomeMsg = document.getElementById('welcome');
+
+
+
+const quizInput = document.getElementById('quizInput');
+
+const flashInput = document.getElementById('flashInput');
+
+
+
+let state = {
+
+  mode: null, // 'quiz' | 'flash'
+
+  quizItems: [],
+
+  quizIndex: 0,
+
+  flashCards: [],
+
+  flashIndex: 0,
+
+  playing: false,
+
+  lastActionStack: []
+
+};
+
+
+
+/* Utility: split numbered lines */
+
+function splitNumbered(text){
+
+  text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+
+  const re = /(^|\n)\s*(\d+)\.\s*/g;
+
+  const matches = [];
+
+  let m;
+
+  while((m=re.exec(text))!==null) matches.push({idx: m.index + m[1].length, n: parseInt(m[2],10)});
+
+  if(matches.length===0){
+
+    return text.split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
+
+  }
+
+  const items = [];
+
+  for(let i=0;i<matches.length;i++){
+
+    const start = matches[i].idx;
+
+    const end = (i+1<matches.length) ? matches[i+1].idx : text.length;
+
+    let raw = text.slice(start,end).trim();
+
+    raw = raw.replace(/^\d+\.\s*/,'').trim();
+
+    items.push(raw);
+
+  }
+
+  return items;
+
+}
+
+
+
+/* Parse quiz items (MCQ or typed) */
+
+function parseQuiz(text){
+
+  const raws = splitNumbered(text);
+
+  const items = [];
+
+  for(const r of raws){
+
+    if(/[A-D]\s*[:\)]/i.test(r) || /A\s*[:]/i.test(r)){
+
+      const [leftPart, rightPart] = r.split('|').map(s=>s? s.trim() : '');
+
+      const [qpart, optsPart] = leftPart.split('=').map(s=>s? s.trim() : '');
+
+      const question = qpart || leftPart;
+
+      const optRaw = optsPart || '';
+
+      const optPieces = optRaw.split(';').map(s=>s.trim()).filter(Boolean);
+
+      const options = [];
+
+      for(const op of optPieces){
+
+        const m = op.match(/^([A-Z])\s*[:\)]\s*(.+)$/i);
+
+        if(m) options.push({key: m[1].toUpperCase(), text: m[2].trim()});
+
+        else options.push({key: String.fromCharCode(65 + options.length), text: op});
+
+      }
+
+      let correct = null;
+
+      if(rightPart){
+
+        const letMatch = rightPart.match(/[A-Z]/i);
+
+        if(letMatch) correct = letMatch[0].toUpperCase();
+
+      } else {
+
+        const ans = r.match(/Answer\s*[:\-]\s*([A-Z])/i);
+
+        if(ans) correct = ans[1].toUpperCase();
+
+      }
+
+      items.push({type:'mcq', question: question, options, correct});
+
+    } else {
+
+      const parts = r.split('=');
+
+      const q = parts[0].trim();
+
+      const a = parts.slice(1).join('=').trim();
+
+      items.push({type:'typed', question: q, answer: a});
+
+    }
+
+  }
+
+  return items;
+
+}
+
+
+
+/* Parse flashcards */
+
+function parseFlash(text){
+
+  const raws = splitNumbered(text);
+
+  const cards = raws.map(r=>{
+
+    const parts = r.split('=');
+
+    const front = parts[0] ? parts[0].trim() : r;
+
+    const back = parts[1] ? parts.slice(1).join('=').trim() : '';
+
+    return {front, back};
+
+  });
+
+  return cards;
+
+}
+
+
+
+/* -------------------- UI: play / exit / back -------------------- */
+
+function enterPlay(mode){
+
+  left.classList.add('hideLeft');
+
+  right.classList.add('hideRight');
+
+  document.getElementById('layoutGrid').classList.add('fullMiddle');
+
+  welcomeMsg.classList.add('hidden');
+
+  floatControls.style.display = 'flex';
+
+  state.playing = true;
+
+  state.mode = mode;
+
+}
+
+
+
+function exitPlay(){
+
+  left.classList.remove('hideLeft');
+
+  right.classList.remove('hideRight');
+
+  document.getElementById('layoutGrid').classList.remove('fullMiddle');
+
+  welcomeMsg.classList.remove('hidden');
+
+  floatControls.style.display = 'none';
+
+  activityArea.innerHTML = '';
+
+  state.playing = false;
+
+  state.lastActionStack = [];
+
+  state.quizIndex = 0;
+
+  state.flashIndex = 0;
+
+}
+
+
+
+/* -------------------- Quiz rendering -------------------- */
+
+function renderQuiz(){
+
+  const idx = state.quizIndex;
+
+  const items = state.quizItems;
+
+  if(!items.length){ activityArea.innerHTML = `<div class="card">No quiz items parsed.</div>`; return;}
+
+  if(idx<0) state.quizIndex=0;
+
+  if(idx>=items.length){ activityArea.innerHTML = `<div class="card">No more questions.</div>`; return;}
+
+  const item = items[idx];
+
+  if(item.type==='mcq'){
+
+    let html = `<div class="card"><div class="question">${escapeHtml(item.question)}</div><div class="options">`;
+
+    item.options.forEach(op=>{
+
+      html+=`<div class="option" onclick="checkOption('${op.key}')">${escapeHtml(op.text)}</div>`;
+
+    });
+
+    html+='</div><div class="flash-controls"><button class="btn ghost" onclick="prevQuiz()">Prev</button><button class="btn ghost" onclick="nextQuiz()">Next</button></div></div>';
+
+    activityArea.innerHTML = html;
+
+  } else {
+
+    activityArea.innerHTML = `<div class="card"><div class="question">${escapeHtml(item.question)}</div>
+
+      <input type="text" class="textAnswer" id="typedAnswer"/>
+
+      <div class="controls" style="margin-top:10px"><button class="btn" onclick="checkTyped()">Check</button>
+
+      <button class="btn ghost" onclick="nextQuiz()">Next</button></div></div>`;
+
+  }
+
+}
+
+
+
+function checkOption(key){
+
+  const item = state.quizItems[state.quizIndex];
+
+  const opts = activityArea.querySelectorAll('.option');
+
+  opts.forEach(el=>{
+
+    if(el.textContent.trim()===item.options.find(o=>o.key===key).text.trim()){
+
+      if(item.correct && key===item.correct) el.classList.add('correct');
+
+      else el.classList.add('wrong');
+
+    }
+
+  });
+
+}
+
+
+
+function checkTyped(){
+
+  const input = document.getElementById('typedAnswer');
+
+  const val = input.value.trim().toLowerCase();
+
+  const item = state.quizItems[state.quizIndex];
+
+  const correct = item.answer.trim().toLowerCase();
+
+  if(val===correct) input.style.border='3px solid rgba(124,255,234,0.3)';
+
+  else input.style.border='3px solid rgba(255,107,107,0.3)';
+
+}
+
+
+
+/* -------------------- Quiz navigation -------------------- */
+
+function prevQuiz(){ state.quizIndex--; renderQuiz(); }
+
+function nextQuiz(){ state.quizIndex++; renderQuiz(); }
+
+
+
+/* -------------------- Flashcards rendering / flip -------------------- */
+
+function renderFlashFront(){
+
+  const idx = state.flashIndex;
+
+  const cards = state.flashCards;
+
+  if(!cards.length){ activityArea.innerHTML = `<div class="card">No flashcards parsed.</div>`; return;}
+
+  if(idx<0) state.flashIndex=0;
+
+  if(idx>=cards.length){ activityArea.innerHTML = `<div class="card">No more flashcards.</div>`; return;}
+
+  const card = cards[idx];
+
+  activityArea.innerHTML = `
+
+    <div class="card flash">
+
+      <div class="flash-container">
+
+        <div class="flash-card" id="flashCard" onclick="revealFlash()">
+
+          <div class="flashFace">
+
+            <div class="flash-content">${escapeHtml(card.front)}</div>
+
+          </div>
+
+          <div class="flashBack">
+
+            <div class="flash-content">${escapeHtml(card.back)}</div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="flash-controls">
+
+        <button class="btn ghost" onclick="prevFlash()">Prev</button>
+
+        <button class="btn ghost" onclick="nextFlash()">Next</button>
+
+      </div>
+
+    </div>
+
+  `;
+
+  const flashCard = document.getElementById('flashCard');
+
+  if(flashCard) flashCard.classList.remove('flipped');
+
+}
+
+
+
+function revealFlash(){
+
+  const flashCard = document.getElementById('flashCard');
+
+  if(flashCard) flashCard.classList.toggle('flipped');
+
+}
+
+
+
+function prevFlash(){ state.flashIndex--; renderFlashFront(); }
+
+function nextFlash(){ state.flashIndex++; renderFlashFront(); }
+
+
+
+/* -------------------- Utilities -------------------- */
+
+function escapeHtml(text){
+
+  const div = document.createElement('div');
+
+  div.textContent = text;
+
+  return div.innerHTML;
+
+}
+
+
+
+/* -------------------- Event handlers -------------------- */
+
+document.getElementById('playQuizBtn').onclick =()=>{ state.quizItems=parseQuiz(quizInput.value); state.quizIndex=0; enterPlay('quiz'); renderQuiz(); }
+
+document.getElementById('playFlashBtn').onclick =()=>{ state.flashCards=parseFlash(flashInput.value); state.flashIndex=0; enterPlay('flash'); renderFlashFront(); }
+
+document.getElementById('previewBtn').onclick =()=>{ console.log('Quiz Items:', parseQuiz(quizInput.value)); console.log('Flashcards:', parseFlash(flashInput.value)); alert('Parsed to console.') }
+
+document.getElementById('clearBtn').onclick =()=>{ quizInput.value=''; flashInput.value=''; }
+
+document.getElementById('demoQuiz').onclick =()=>{ quizInput.value=`1. Capital of France? = Paris\n2. 2+2? = A:3; B:4; C:5 | B`; document.getElementById('playQuizBtn').click(); }
+
+document.getElementById('demoFlash').onclick =()=>{ flashInput.value=`1. Energy = The capacity to do work\n2. Atom = Smallest unit of matter`; document.getElementById('playFlashBtn').click(); }
+
+backBtn.onclick =()=>{ if(state.mode==='quiz') renderQuiz(); else if(state.mode==='flash') renderFlashFront(); }
+
+exitBtn.onclick =()=>{ exitPlay(); }
+
+</script>
+
+</body>
+
+</html>
