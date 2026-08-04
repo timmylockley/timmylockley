@@ -7,16 +7,21 @@
             <p>This is a work in progress, and what you see is only the scaffold for the website</p>
         </head>
         <nav>
-            <button><a href="https://bioniclimit2.github.io/TVAC-Website-Rebuild" id="link1">GitHub Project Link</a></button>
-            <p style="display: none;" id="emailText"> I'll Emailed you the project instead!</p>
+            <a href="https://bioniclimit2.github.io/TVAC-Website-Rebuild" id="link1" target="_blank" rel="noopener noreferrer">GitHub Project Link</a>
+           <br>
+            <h1 style="display: none; color:red;" id="emailText1">Whoops!</h1>
+            <br>
+            <h1 style="display: none; color:red;" id="emailText">I've Emailed you the project instead!</h1>
         </nav>
         <script>
-        const link = document.getElementById("myLink");
+        const link = document.getElementById("link1");
         const emailText = document.getElementById("emailText")
+        const emailText1 = document.getElementById("emailText1")
 
         link.addEventListener("click", function() {
-        link.textContent = "Whoops";
+        link.style.display = "none";
         emailText.style.display = "inline";
+        emailText1.style.display = "inline";
         })
         </script>
     </body>
