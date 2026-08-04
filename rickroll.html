@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<HTML>
+    <body>
+        <head>
+            <h1>New TVAC Website</h1>
+            <h3>Coded by Timothy Lockley and Aaryn Coveney</h3>
+            <p>This is a work in progress, and what you see is only the scaffold for the website</p>
+        </head>
+        <nav>
+            <button><a href="https://bioniclimit2.github.io/TVAC-Website-Rebuild" id="link1">GitHub Project Link</a></button>
+            <p style="display: none;" id="emailText"> I'll Emailed you the project instead!</p>
+        </nav>
+        <script>
+        const link = document.getElementById("myLink");
+        const emailText = document.getElementById("emailText")
+
+        link.addEventListener("click", function() {
+        link.textContent = "Whoops";
+        emailText.style.display = "inline";
+        })
+        </script>
+    </body>
+</HTML>
