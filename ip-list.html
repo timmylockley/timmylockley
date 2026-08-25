@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body {
+flex-direction: column;
+display:flex;
+align-items: center;
+height: 100vh;
+}
+
+.failtext {
+
+align-items: center;
+
+}
+
+.loadfail {
+
+align-items: center;
+
+}
+
+.info {
+    flex-direction: column;
+display:flex;
+align-items: center;
+height: 100vh;
+}
+
+.info iframe {
+    width: 640px;
+    height: 500px;
+    border: none;
+    text-align: center;
+}
+.ips {
+    width: 100px;
+}
+</style>
+
+</head>
+
+<body>
+
+<form class="inputgroup" id="inputgroup">
+
+<h1>Log In</h1>
+
+<label for="username">Username</label>
+
+<br>
+
+<input type="text" id="username" placeholder="Username" required>
+
+<div>
+
+<label for="password">Password</label>
+
+<br>
+
+<input type="password" id="password" placeholder="Password" required>
+
+<br>
+
+<button id="signinbutton">Sign In</button>
+
+</div>
+
+</form>
+
+<h2 class="failtext" id="failtext" style="display: none;">Login Failed. Try Again</h2>
+
+<h2 class="loadfail" id="loadfail" style="display: none;">JSON Load Failed</h2>
+
+</div>
+
+<div class="info" style="display: none;">
+
+<h1>School IP Addresses</h1>
+
+<iframe class="ips" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTW8zvhwWZjHX2g-oYKNBdxlzEF-FGFCkdyfGd888hdyNWpFfpuaE-Qw8cFI_p7oyaSeVZWJvMaAoWa/pubhtml?gid=257551402&amp;single=true&amp;widget=true&amp;headers=false&amp;chrome=false&amp;range=D1:D"></iframe></iframe>
+
+<h2>Add to the List</h2>
+
+<br>
+
+<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdVx2DLGcROcs4VSOCaIYYB55XsBqdnJRJEPeZoph_jP129KQ/viewform?embedded=true" width="640" height="556" frameborder="0" marginheight="0" marginwidth="0"></iframe>
+
+</div>
+
+<script>
+
+document.getElementById('inputgroup').addEventListener('submit', async function (event) {
+
+event.preventDefault();
+
+const userUsername = document.getElementById('username').value;
+
+const userPassword = document.getElementById('password').value;
+
+const info = document.querySelector('.info');
+
+const login = document.getElementById('inputgroup');
+
+const failText = document.getElementById('failtext');
+
+const loadFail = document.getElementById('loadfail');
+
+
+
+try {
+
+const response = await fetch('https://timmylockley.github.io/timmylockley/iplogins.json');
+
+if (!response.ok) {
+
+throw new Error('JSON load failed');
+
+}
+
+const users = await response.json();
+
+const foundUser = users.find(user => user.username === userUsername && user.password === userPassword);
+
+
+
+if (foundUser) {
+
+login.style.display = 'none';
+
+info.style.display = 'flex';
+
+} else {
+
+failText.style.display = 'flex';
+
+}
+
+} catch (error) {
+
+loadFail.style.display = 'flex';
+
+}
+
+});
+
+</script>
+
+</body>
+
+</html> 
+
