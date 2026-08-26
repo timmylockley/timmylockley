@@ -9,42 +9,116 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #f4f6f9;
+        font-family: system-ui, -apple-system, sans-serif;
+        color: #333;
+    }
 
-body {
-flex-direction: column;
-display:flex;
-align-items: center;
-height: 100vh;
-min-height: 100vh;
-margin: 0;
-font-family: Arial, sans-serif;
+    #inputgroup {
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        width: 320px;
+        text-align: center;
+        margin-top: 50px;
+    }
+
+    #inputgroup h1 {
+        margin-top: 0;
+        font-size: 24px;
+        color: #111;
+    }
+
+    input[type="text"], input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0 16px 0;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+        background-color: #0066cc;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    button:hover {
+        background-color: #0052a3;
+    }
+
+    .info {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        padding: 20px 0;
+    }
+
+    .info h1, .info h2 {
+        color: #222;
+        margin-bottom: 10px;
+    }
+
+    .info iframe {
+        height: 500px;
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        background: #ffffff;
+        margin-bottom: 30px;
+    }
+
+    .failtext {
+        color: #d93838;
+        font-size: 16px;
+    }
+
+    .loadfail {
+        color: #e67e22;
+        font-size: 16px;
+    }
+    .refresh {
+    width: 30%;
+    }
+    .card {
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80%;
 }
 
-.failtext {
-
-align-items: center;
-
+.card-sheet {
+    background-color: #e3f2fd; 
 }
 
-.loadfail {
-
-align-items: center;
-
+.card-form {
+    background-color: #e8f5e9; 
 }
-
-.info {
-flex-direction: column;
-display:flex;
-align-items: center;
-width: 100%;
-
+.ips {
+    width: 160px;
 }
-
-.info iframe {
-    width: 640px;
-    height: 500px;
-    border: none;
-    margin-bottom: 20px;
+.form1 {
+   width: 75%;
 }
 </style>
 
@@ -82,21 +156,25 @@ width: 100%;
 
 <h2 class="loadfail" id="loadfail" style="display: none;">JSON Load Failed</h2>
 
-</div>
 
 <div class="info" style="display: none;">
-
-<h2>School IP Addresses</h2>
-
-<iframe class="ips" id="ips" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTW8zvhwWZjHX2g-oYKNBdxlzEF-FGFCkdyfGd888hdyNWpFfpuaE-Qw8cFI_p7oyaSeVZWJvMaAoWa/pubhtml?gid=257551402&amp;single=true&amp;widget=true&amp;headers=false&amp;chrome=false&amp;range=D1:D"></iframe>
-<button onclick="document.getElementById('ips').src = document.getElementById('ips').src;">Refresh</button>
-<h2>Add to the List</h2>
+<div class="card card-sheet">
+<h2>School IP Addresses:</h2>
+<br>
+<iframe class="ips" id="ips" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTW8zvhwWZjHX2g-oYKNBdxlzEF-FGFCkdyfGd888hdyNWpFfpuaE-Qw8cFI_p7oyaSeVZWJvMaAoWa/pubhtml?gid=257551402&amp;single=true&amp;widget=false&amp;headers=false&amp;chrome=false&amp;range=E1:E"></iframe>
+<br>
+<button class="refresh" onclick="document.getElementById('ips').src = document.getElementById('ips').src;">Refresh List</button>
+</div>
+<br>
+<div class="card card-form">
+<h2>Add to the List:</h2>
 
 <br>
 
-<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdVx2DLGcROcs4VSOCaIYYB55XsBqdnJRJEPeZoph_jP129KQ/viewform?embedded=true" width="640" height="556" frameborder="0" marginheight="0" marginwidth="0"></iframe>
-
+<iframe class="form1" src="https://docs.google.com/forms/d/e/1FAIpQLSdVx2DLGcROcs4VSOCaIYYB55XsBqdnJRJEPeZoph_jP129KQ/viewform?embedded=true" frameborder="0" marginheight="0" marginwidth="0"></iframe>
 </div>
+</div>
+<h6 style="color: grey;">© 2026 Timothy Lockley</h6>
 
 <script>
 
