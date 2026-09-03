@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Video & Website Viewer</title>
+    <style>
+        :root {
+            --primary-color: #ff0000;
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --surface-hover: #2a2a2a;
+            --text-color: #ffffff;
+            --text-secondary: #aaaaaa;
+            --border-color: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header h1 {
+            margin: 0 0 5px 0;
+            font-size: 1.8rem;
+        }
+
+        header p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .input-card {
+            background: var(--surface-color);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .mode-btn {
+            background: var(--surface-hover);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--surface-hover);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+        }
+
+        button.load-btn {
+            padding: 0 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+
+        button.load-btn:hover {
+            background-color: #cc0000;
+        }
+
+        .viewer-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--surface-hover);
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: var(--surface-hover);
+            color: var(--text-color);
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            background: #333;
+        }
+
+        .placeholder-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Universal Media & Website Viewer</h1>
+            <p>Switch modes to view either YouTube videos or embed external websites.</p>
+        </header>
+
+        <!-- Input Section with Mode Switcher -->
+        <div class="input-card">
+            <div class="mode-selector">
+                <button class="mode-btn active" id="ytModeBtn">YouTube Video</button>
+                <button class="mode-btn" id="webModeBtn">Website Embed</button>
+            </div>
+            <div class="input-row">
+                <input type="text" id="urlInput" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off">
+                <button class="load-btn" id="loadBtn">Load</button>
+            </div>
+        </div>
+
+        <!-- Viewer Section -->
+        <div class="viewer-card">
+            <div class="video-container" id="videoContainer">
+                <div class="placeholder-text" id="placeholder">No content loaded yet. Enter a URL above!</div>
+            </div>
+
+            <!-- Controls Bar -->
+            <div class="controls-bar" id="controlsBar" style="display: none;">
+                <div class="control-group" id="ytControls">
+                    <button class="action-btn" id="soundToggleBtn">Mute</button>
+                </div>
+                <div class="control-group">
+                    <button class="action-btn" id="fullscreenBtn">Fullscreen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- YouTube IFrame Player API Script -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        let player;
+        let isMuted = false;
+        let currentMode = 'youtube'; // 'youtube' or 'website'
+
+        const urlInput = document.getElementById('urlInput');
+        const loadBtn = document.getElementById('loadBtn');
+        const videoContainer = document.getElementById('videoContainer');
+        const controlsBar = document.getElementById('controlsBar');
+        const placeholder = document.getElementById('placeholder');
+        
+        const ytModeBtn = document.getElementById('ytModeBtn');
+        const webModeBtn = document.getElementById('webModeBtn');
+        const ytControls = document.getElementById('ytControls');
+        const soundToggleBtn = document.getElementById('soundToggleBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+        // Mode Switching Logic
+        ytModeBtn.addEventListener('click', () => {
+            currentMode = 'youtube';
+            ytModeBtn.classList.add('active');
+            webModeBtn.classList.remove('active');
+            urlInput.placeholder = "https://www.youtube.com/watch?v=...";
+            ytControls.style.display = 'flex';
+        });
+
+        webModeBtn.addEventListener('click', () => {
+            currentMode = 'website';
+            webModeBtn.classList.add('active');
+            ytModeBtn.classList.remove('active');
+            urlInput.placeholder = "https://example.com (Note: many sites block embedding)";
+            ytControls.style.display = 'none';
+        });
+
+        // Extract YouTube ID helper
+        function extractVideoID(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        // Load Content Based on Mode
+        function handleLoad() {
+            const val = urlInput.value.trim();
+            if (!val) return;
+
+            if (placeholder) {
+                placeholder.remove();
+            }
+
+            controlsBar.style.display = 'flex';
+            videoContainer.innerHTML = ''; // Clear previous frame/player
+
+            if (currentMode === 'youtube') {
+                ytControls.style.display = 'flex';
+                const videoId = extractVideoID(val);
+                if (videoId) {
+                    const playerDiv = document.createElement('div');
+                    playerDiv.id = 'ytPlayer';
+                    videoContainer.appendChild(playerDiv);
+
+                    player = new YT.Player('ytPlayer', {
+                        height: '100%',
+                        width: '100%',
+                        videoId: videoId,
+                        playerVars: {
+                            'playsinline': 1,
+                            'autoplay': 1,
+                            'enablejsapi': 1
+                        }
+                    });
+                } else {
+                    alert("Please enter a valid YouTube video link format.");
+                }
+            } else {
+                ytControls.style.display = 'none';
+                player = null; // Reset YT player reference
+
+                let targetUrl = val;
+                if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+                    targetUrl = 'https://' + targetUrl;
+                }
+
+                const iframe = document.createElement('iframe');
+                iframe.src = targetUrl;
+                iframe.width = '100%';
+                iframe.height = '100%';
+                iframe.style.border = 'none';
+                videoContainer.appendChild(iframe);
+            }
+        }
+
+        loadBtn.addEventListener('click', handleLoad);
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLoad();
+        });
+
+        // Controls Bindings (YouTube Only)
+        soundToggleBtn.addEventListener('click', () => {
+            if (!player) return;
+            if (isMuted) {
+                player.unMute();
+                soundToggleBtn.textContent = "Mute";
+                isMuted = false;
+            } else {
+                player.mute();
+                soundToggleBtn.textContent = "Unmute";
+                isMuted = true;
+            }
+        });
+
+        fullscreenBtn.addEventListener('click', () => {
+            const iframe = videoContainer.querySelector('iframe');
+            if (!iframe) return;
+            if (iframe.requestFullscreen) {
+                iframe.requestFullscreen();
+            } else if (iframe.webkitRequestFullscreen) {
+                iframe.webkitRequestFullscreen();
+            } else if (iframe.msRequestFullscreen) {
+                iframe.msRequestFullscreen();
+            }
+        });
+    </script>
+</body>
+</html>
